@@ -34,7 +34,7 @@ def carregar_dados():
 #__________________________________________TELA DE LOGIN_______________________________________________
 if st.session_state["usuario"] is None:
 
-    st.title("🔐 Login")
+    st.title(" Login")
 
     user = st.text_input("Usuário")
     senha = st.text_input("Senha", type="password")
