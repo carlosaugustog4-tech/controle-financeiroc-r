@@ -1,6 +1,13 @@
 import streamlit as st
 import datetime
-import json
+import firebase_admin
+from firebase_admin import credentials, firestore
+
+if not firebase_admin._apps:
+    cred = credentials.Certificate(dict(st.secrets["firebase"]))
+    firebase_admin.initialize_app(cred)
+
+db = firestore.client()
 
 usuarios = {
     "carlos": "19982410",
@@ -13,23 +20,31 @@ if "usuario" not in st.session_state:
 
 
 def salvar_dados():
-    dados = {
+    usuario = st.session_state["usuario"]
+
+    db.collection("usuarios").document(usuario).set({
         "salario": st.session_state["salario"],
         "gastos": st.session_state["gastos"]
-    }
+    }, merge=True)
 
-    with open("dados.json", "w") as f:
-        json.dump(dados, f)
+
+
+if 'salario' not in st.session_state:
+    st.session_state["salario"] = {}
+
+if 'gastos' not in st.session_state:
+    st.session_state["gastos"] = {}
+
 
 def carregar_dados():
-    try:
-        with open("dados.json", "r") as f:
-            dados = json.load(f)
-            st.session_state["salario"] = dados.get("salario", {})
-            st.session_state["gastos"] = dados.get("gastos", {})
-    except:
-        pass
+    usuario = st.session_state["usuario"]
 
+    doc = db.collection("usuarios").document(usuario).get()
+
+    if doc.exists:
+        dados = doc.to_dict()
+        st.session_state["salario"] = dados.get("salario", {})
+        st.session_state["gastos"] = dados.get("gastos", {})
 
 #__________________________________________TELA DE LOGIN_______________________________________________
 if st.session_state["usuario"] is None:
@@ -42,6 +57,7 @@ if st.session_state["usuario"] is None:
     if st.button("Entrar"):
         if user in usuarios and usuarios[user] == senha:
             st.session_state["usuario"] = user
+            st.session_state["dados_carregados"] = False
             st.success("Login realizado!")
             st.rerun()
         else:
@@ -66,13 +82,10 @@ meses = list(dict.fromkeys(meses))
 mes = st.selectbox('🗓️ Data 🗓️',meses)
 
 
-if 'salario' not in st.session_state:
-    st.session_state["salario"] = {}
+if "dados_carregados" not in st.session_state:
+    carregar_dados()
+    st.session_state["dados_carregados"] = True
 
-if 'gastos' not in st.session_state:
-    st.session_state["gastos"] = {}
-
-carregar_dados()
 #_____________________________________________SALARIO______________________________________________________
 salario_mes = st.session_state['salario'].get(mes,0)
 
@@ -106,12 +119,15 @@ with st.form("form_gasto"):
     submitted = st.form_submit_button("Adicionar Gasto")
 
     if submitted:
-        st.session_state['gastos'][mes].append({
-            'desc': descricao,
-            'valor': valor_gasto
+        if descricao and valor_gasto > 0:
+            st.session_state['gastos'][mes].append({
+                'desc': descricao,
+                'valor': valor_gasto
         })
-        salvar_dados()
-        st.success("Gasto Adicionado!")
+            salvar_dados()
+            st.success("Gasto Adicionado!")
+    else:
+        st.warning("Preencha os dados corretamente")
 
 
 gastos_mes = st.session_state['gastos'][mes]
