@@ -82,9 +82,7 @@ meses = list(dict.fromkeys(meses))
 mes = st.selectbox('🗓️ Data 🗓️',meses)
 
 
-if "dados_carregados" not in st.session_state:
-    carregar_dados()
-    st.session_state["dados_carregados"] = True
+carregar_dados()
 
 #_____________________________________________SALARIO______________________________________________________
 salario_mes = st.session_state['salario'].get(mes,0)
@@ -126,8 +124,8 @@ with st.form("form_gasto"):
         })
             salvar_dados()
             st.success("Gasto Adicionado!")
-    else:
-        st.warning("Preencha os dados corretamente")
+        else:
+            st.warning("Preencha os dados corretamente")
 
 
 gastos_mes = st.session_state['gastos'][mes]
