@@ -3,31 +3,25 @@ import datetime
 import firebase_admin
 from firebase_admin import credentials, firestore
 
+#_______________________________________________________________Conexão com Firebase___________________________________________________
 if not firebase_admin._apps:
     cred = credentials.Certificate(dict(st.secrets["firebase"]))
     firebase_admin.initialize_app(cred)
 
 db = firestore.client()
 
+#_______________________________________________________________Usuários_______________________________________________________________
 usuarios = {
     "carlos": "19982410",
     "rayssa": "19982410"
 }
 
+#_______________________________________________________________Controle de sessão______________________________________________________
 if "usuario" not in st.session_state:
     st.session_state["usuario"] = None
 
-
-
-def salvar_dados():
-    usuario = st.session_state["usuario"]
-
-    db.collection("usuarios").document(usuario).set({
-        "salario": st.session_state["salario"],
-        "gastos": st.session_state["gastos"]
-    }, merge=True)
-
-
+if "dados_carregados" not in st.session_state:
+    st.session_state["dados_carregados"] = False
 
 if 'salario' not in st.session_state:
     st.session_state["salario"] = {}
@@ -35,18 +29,23 @@ if 'salario' not in st.session_state:
 if 'gastos' not in st.session_state:
     st.session_state["gastos"] = {}
 
-
+#_______________________________________________________________Carregar dados____________________________________________________________
 def carregar_dados():
-    usuario = st.session_state["usuario"]
-
-    doc = db.collection("usuarios").document(usuario).get()
+    doc = db.collection("controle_financeiro").document("casal").get()
 
     if doc.exists:
         dados = doc.to_dict()
         st.session_state["salario"] = dados.get("salario", {})
         st.session_state["gastos"] = dados.get("gastos", {})
 
-#__________________________________________TELA DE LOGIN_______________________________________________
+#_______________________________________________________________Salvar dados_______________________________________________________________
+def salvar_dados():
+    db.collection("controle_financeiro").document("casal").set({
+        "salario": st.session_state["salario"],
+        "gastos": st.session_state["gastos"]
+    }, merge=True)
+
+# __________________________________________ TELA DE LOGIN __________________________________________
 if st.session_state["usuario"] is None:
 
     st.title("🔐 Login")
@@ -65,30 +64,33 @@ if st.session_state["usuario"] is None:
 
     st.stop()
 
+#_______________________________________________________________APP_______________________________________________________________
+
 st.title("📊❤️ Controle Financeiro ❤️📊")
 st.write(f"👤 Usuário: {st.session_state['usuario']}")
 st.write("C&R 👩🏽‍❤️‍👨🏻")
 
-
+#_______________________________________________________________Data_______________________________________________________________
 hoje = datetime.datetime.now()
 
-
-#_______________________________________________DATA______________________________________________________
 meses = []
-for i in range(12): 
+for i in range(12):
     data = hoje - datetime.timedelta(days=30 * i)
     meses.append(data.strftime('%Y-%m'))
+
 meses = list(dict.fromkeys(meses))
-mes = st.selectbox('🗓️ Data 🗓️',meses)
+mes = st.selectbox('🗓️ Data 🗓️', meses)
 
 
-carregar_dados()
+if not st.session_state["dados_carregados"]:
+    carregar_dados()
+    st.session_state["dados_carregados"] = True
 
-#_____________________________________________SALARIO______________________________________________________
-salario_mes = st.session_state['salario'].get(mes,0)
+# __________________________________________ SALÁRIO __________________________________________
+
+salario_mes = st.session_state['salario'].get(mes, 0)
 
 st.subheader('💰 Salário do Mês 💰')
-
 
 salario = st.number_input("Salário", min_value=0.0)
 
@@ -99,16 +101,14 @@ if st.button('Adicionar Salário'):
 
 salario_mes = st.session_state['salario'].get(mes, 0)
 
-
 st.write(f'R$ {salario_mes}')
 
-#______________________________________________GASTO_______________________________________________________
-st.subheader('💸 Gastos 💸')
+# __________________________________________ GASTOS __________________________________________
 
+st.subheader('💸 Gastos 💸')
 
 if mes not in st.session_state['gastos']:
     st.session_state['gastos'][mes] = []
-
 
 with st.form("form_gasto"):
     descricao = st.text_input("Descrição de Gastos")
@@ -120,16 +120,15 @@ with st.form("form_gasto"):
         if descricao and valor_gasto > 0:
             st.session_state['gastos'][mes].append({
                 'desc': descricao,
-                'valor': valor_gasto
-        })
+                'valor': valor_gasto,
+                'usuario': st.session_state["usuario"]  # 🔥 quem adicionou
+            })
             salvar_dados()
             st.success("Gasto Adicionado!")
         else:
             st.warning("Preencha os dados corretamente")
 
-
 gastos_mes = st.session_state['gastos'][mes]
-
 
 st.subheader("🗃️ Lista de Gastos 🗃️")
 
@@ -137,10 +136,10 @@ if len(gastos_mes) == 0:
     st.write("Sem Gastos")
 else:
     for i, gasto in enumerate(gastos_mes):
-        col1, col2 = st.columns([4,1])
+        col1, col2 = st.columns([4, 1])
 
         with col1:
-            st.write(f"{gasto['desc']} - R$ {gasto['valor']}")
+            st.write(f"{gasto['desc']} - R$ {gasto['valor']} (👤 {gasto.get('usuario', '')})")
 
         with col2:
             if st.button("❌", key=f"del_{mes}_{i}"):
@@ -148,6 +147,7 @@ else:
                 salvar_dados()
                 st.rerun()
 
+# __________________________________________ RESUMO __________________________________________
 
 total_gastos = sum(g["valor"] for g in gastos_mes)
 
@@ -161,4 +161,4 @@ st.subheader("⚖️ Saldo do Mês ⚖️")
 if saldo < 0:
     st.markdown(f"<h2 style='color:red'>R$ {saldo}</h2>", unsafe_allow_html=True)
 else:
-    st.markdown(f"<h2 style='color:green'>R$ {saldo}</h2>", unsafe_allow_html=True)    
+    st.markdown(f"<h2 style='color:green'>R$ {saldo}</h2>", unsafe_allow_html=True)
