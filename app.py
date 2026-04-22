@@ -157,7 +157,7 @@ if pagina == "📊 Análise":
         fig = px.pie(df, names="Categoria", values="Valor", hole=0.4)
         st.plotly_chart(fig, use_container_width=True)
     else:
-        st.info("Sem dados ainda")
+        st.info("Sem Despesas")
 
     st.divider()
 
