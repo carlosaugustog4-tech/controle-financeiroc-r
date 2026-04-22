@@ -95,7 +95,7 @@ pagina = st.radio("", ["📊 Análise", "➕ Nova Transação"], horizontal=True
 # =========================
 if pagina == "📊 Análise":
 
-    st.title("Financeiro")
+    st.title("")
 
     st.subheader("💰 Controle Financeiro")
     
@@ -174,7 +174,7 @@ if pagina == "📊 Análise":
 # =========================
 if pagina == "➕ Nova Transação":
 
-    st.title("➕ Nova Transação")
+    st.subheader("Nova Despesa")
 
     with st.form("form_transacao"):
 
