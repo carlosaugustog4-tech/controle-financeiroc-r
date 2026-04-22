@@ -111,7 +111,23 @@ if pagina == "📊 Análise":
 
     st.divider()
 
-    # gráfico pizza
+    # ✏️ EDITAR RECEITA
+    st.subheader("✏️ Editar Receita")
+
+    novo_salario = st.number_input(
+        "Valor da receita do mês",
+        value=float(salario_mes)
+    )
+
+    if st.button("Salvar Receita"):
+        st.session_state['salario'][mes] = novo_salario
+        salvar_dados()
+        st.success("Receita atualizada!")
+        st.rerun()
+
+    st.divider()
+
+    # 📊 GRÁFICO
     categorias = {}
     for g in gastos_mes:
         cat = g.get("categoria", "Outros")
@@ -127,6 +143,29 @@ if pagina == "📊 Análise":
         st.plotly_chart(fig, use_container_width=True)
     else:
         st.info("Sem dados ainda")
+
+    st.divider()
+
+    # 🗃️ LISTA DE GASTOS
+    st.subheader("🗃️ Lista de Gastos")
+
+    if len(gastos_mes) == 0:
+        st.write("Sem gastos")
+    else:
+        for i, gasto in enumerate(gastos_mes):
+            col1, col2 = st.columns([4, 1])
+
+            with col1:
+                st.write(
+                    f"{gasto['desc']} - R$ {gasto['valor']} "
+                    f"(👤 {gasto.get('usuario','')})"
+                )
+
+            with col2:
+                if st.button("❌", key=f"del_{mes}_{i}"):
+                    st.session_state['gastos'][mes].pop(i)
+                    salvar_dados()
+                    st.rerun()
 
 # =========================
 # ➕ NOVA TRANSAÇÃO
