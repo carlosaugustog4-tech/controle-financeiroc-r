@@ -79,7 +79,15 @@ if st.session_state["usuario"] is None:
 # 📅 DATA
 # =========================
 hoje = datetime.datetime.now()
-mes = hoje.strftime('%Y-%m')
+
+meses = []
+for i in range(6):
+    data = hoje - datetime.timedelta(days=30 * i)
+    meses.append(data.strftime('%Y-%m'))
+
+meses = list(dict.fromkeys(meses))  # remove duplicados
+
+mes = st.selectbox("📅 Mês", meses)
 
 if not st.session_state["dados_carregados"]:
     carregar_dados()
