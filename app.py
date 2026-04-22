@@ -81,6 +81,8 @@ if st.session_state["usuario"] is None:
 # =========================
 pagina = st.radio("", ["📊 Análise", "➕ Nova Transação"], horizontal=True)
 
+st.titte("")
+
 
 # =========================
 # 📅 DATA
@@ -107,7 +109,7 @@ if not st.session_state["dados_carregados"]:
 # =========================
 if pagina == "📊 Análise":
 
-    st.title("")
+    #st.title("")
 
     st.subheader("💰 Controle Financeiro")
     
@@ -186,7 +188,7 @@ if pagina == "📊 Análise":
 # =========================
 if pagina == "➕ Nova Transação":
 
-    st.subheader("Nova Despesa")
+    st.subheader("💸 Nova Despesa")
 
     with st.form("form_transacao"):
 
