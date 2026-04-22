@@ -74,6 +74,13 @@ if st.session_state["usuario"] is None:
             st.error("Usuário ou senha inválidos")
 
     st.stop()
+    
+    
+# =========================
+# MENU
+# =========================
+pagina = st.radio("", ["📊 Análise", "➕ Nova Transação"], horizontal=True)
+
 
 # =========================
 # 📅 DATA
@@ -93,10 +100,7 @@ if not st.session_state["dados_carregados"]:
     carregar_dados()
     st.session_state["dados_carregados"] = True
 
-# =========================
-# MENU
-# =========================
-pagina = st.radio("", ["📊 Análise", "➕ Nova Transação"], horizontal=True)
+
 
 # =========================
 # 📊 ANALISE
