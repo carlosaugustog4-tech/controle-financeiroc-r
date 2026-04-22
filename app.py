@@ -178,7 +178,7 @@ if pagina == "➕ Nova Transação":
 
     with st.form("form_transacao"):
 
-        tipo = st.selectbox("Tipo", ["Receita", "Despesa"])
+        tipo = st.selectbox("Tipo", ["Despesa"])
         valor = st.number_input("Valor", min_value=0.0)
 
         categoria = st.selectbox(
