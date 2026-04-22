@@ -82,7 +82,7 @@ if st.session_state["usuario"] is None:
 pagina = st.radio("", ["📊 Análise", "➕ Nova Transação"], horizontal=True)
 
 #st.titte("")
-
+st.divider()
 
 # =========================
 # 📅 DATA
@@ -102,7 +102,7 @@ if not st.session_state["dados_carregados"]:
     carregar_dados()
     st.session_state["dados_carregados"] = True
 
-
+st.divider()
 
 # =========================
 # 📊 ANALISE
