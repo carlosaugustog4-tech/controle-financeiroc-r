@@ -95,8 +95,10 @@ pagina = st.radio("", ["📊 Análise", "➕ Nova Transação"], horizontal=True
 # =========================
 if pagina == "📊 Análise":
 
-    st.title("💰 Controle Financeiro")
+    st.title("Financeiro")
 
+    st.subheader("💰 Controle Financeiro")
+    
     salario_mes = st.session_state['salario'].get(mes, 0)
     gastos_mes = st.session_state['gastos'].get(mes, [])
 
