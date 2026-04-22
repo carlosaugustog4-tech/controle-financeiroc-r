@@ -98,8 +98,6 @@ meses = list(dict.fromkeys(meses))  # remove duplicados
 
 mes = st.selectbox("📅 Mês", meses)
 
-st.title("")
-
 if not st.session_state["dados_carregados"]:
     carregar_dados()
     st.session_state["dados_carregados"] = True
@@ -111,7 +109,6 @@ if not st.session_state["dados_carregados"]:
 # =========================
 if pagina == "📊 Análise":
 
-    st.title("")
 
     st.subheader("💰 Controle Financeiro")
     
