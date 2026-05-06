@@ -196,7 +196,7 @@ if pagina == "➕ Nova Transação":
 
         categoria = st.selectbox(
             "Categoria",
-            ["Moradia", "Alimentação", "Transporte", "Lazer", "Saúde"]
+            ["Moradia", "Alimentação", "Transporte", "Lazer", "Saúde", "Donativo", "Outros"]
         )
 
         descricao = st.text_input("Descrição")
